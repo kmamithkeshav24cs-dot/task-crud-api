@@ -4,8 +4,20 @@ const app = express();
 
 const PORT = 3000;
 
+// Root endpoint
 app.get("/", (req, res) => {
-    res.send("Hello, server!");
+    res.json({
+        name: "Task API",
+        version: "1.0",
+        endpoints: ["/tasks"]
+    });
+});
+
+// Health endpoint
+app.get("/health", (req, res) => {
+    res.json({
+        status: "ok"
+    });
 });
 
 app.listen(PORT, () => {
