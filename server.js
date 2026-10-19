@@ -4,7 +4,26 @@ const app = express();
 
 const PORT = 3000;
 
-// Root endpoint
+// In-memory task list
+let tasks = [
+    {
+        id: 1,
+        title: "Learn Node.js",
+        done: false
+    },
+    {
+        id: 2,
+        title: "Build a REST API",
+        done: false
+    },
+    {
+        id: 3,
+        title: "Test the API",
+        done: true
+    }
+];
+
+// Stage 1: Root endpoint
 app.get("/", (req, res) => {
     res.json({
         name: "Task API",
@@ -13,13 +32,34 @@ app.get("/", (req, res) => {
     });
 });
 
-// Health endpoint
+// Stage 1: Health endpoint
 app.get("/health", (req, res) => {
     res.json({
         status: "ok"
     });
 });
 
+// Stage 2: Get all tasks
+app.get("/tasks", (req, res) => {
+    res.status(200).json(tasks);
+});
+
+// Stage 2: Get one task by ID
+app.get("/tasks/:id", (req, res) => {
+    const id = Number(req.params.id);
+
+    const task = tasks.find(task => task.id === id);
+
+    if (!task) {
+        return res.status(404).json({
+            error: `Task ${id} not found`
+        });
+    }
+
+    res.status(200).json(task);
+});
+
+// Start server
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
 });
