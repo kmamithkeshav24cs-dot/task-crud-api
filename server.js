@@ -1,6 +1,7 @@
 const express = require("express");
 
 const app = express();
+app.use(express.json());
 
 const PORT = 3000;
 
@@ -57,6 +58,30 @@ app.get("/tasks/:id", (req, res) => {
     }
 
     res.status(200).json(task);
+});
+// Stage 3: Create a new task
+app.post("/tasks", (req, res) => {
+    const { title } = req.body;
+
+    // Validate title
+    if (!title || typeof title !== "string" || title.trim() === "") {
+        return res.status(400).json({
+            error: "Title is required and cannot be empty"
+        });
+    }
+
+    // Create new task
+    const newTask = {
+        id: tasks.length > 0 ? Math.max(...tasks.map(task => task.id)) + 1 : 1,
+        title: title.trim(),
+        done: false
+    };
+
+    // Add task to list
+    tasks.push(newTask);
+
+    // Return created task
+    res.status(201).json(newTask);
 });
 
 // Start server
