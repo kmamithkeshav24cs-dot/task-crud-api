@@ -1,10 +1,36 @@
 const express = require("express");
+const swaggerUi = require("swagger-ui-express");
+const swaggerJsdoc = require("swagger-jsdoc");
 
 const app = express();
 
 app.use(express.json());
 
 const PORT = 3000;
+// ==========================================
+// SWAGGER CONFIGURATION
+// ==========================================
+
+const swaggerOptions = {
+    definition: {
+        openapi: "3.0.0",
+        info: {
+            title: "Task CRUD API",
+            version: "1.0.0",
+            description: "A simple in-memory Task CRUD API"
+        },
+        servers: [
+            {
+                url: "http://localhost:3000"
+            }
+        ]
+    },
+    apis: ["./server.js"]
+};
+
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // ==========================================
 // IN-MEMORY TASK LIST
