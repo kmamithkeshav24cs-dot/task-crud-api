@@ -1,11 +1,15 @@
 const express = require("express");
 
 const app = express();
+
 app.use(express.json());
 
 const PORT = 3000;
 
-// In-memory task list
+// ==========================================
+// IN-MEMORY TASK LIST
+// ==========================================
+
 let tasks = [
     {
         id: 1,
@@ -24,7 +28,10 @@ let tasks = [
     }
 ];
 
-// Stage 1: Root endpoint
+// ==========================================
+// ROOT ENDPOINT
+// ==========================================
+
 app.get("/", (req, res) => {
     res.json({
         name: "Task API",
@@ -33,19 +40,30 @@ app.get("/", (req, res) => {
     });
 });
 
-// Stage 1: Health endpoint
+// ==========================================
+// HEALTH ENDPOINT
+// ==========================================
+
 app.get("/health", (req, res) => {
     res.json({
         status: "ok"
     });
 });
 
-// Stage 2: Get all tasks
+// ==========================================
+// GET ALL TASKS
+// GET /tasks
+// ==========================================
+
 app.get("/tasks", (req, res) => {
     res.status(200).json(tasks);
 });
 
-// Stage 2: Get one task by ID
+// ==========================================
+// GET ONE TASK
+// GET /tasks/:id
+// ==========================================
+
 app.get("/tasks/:id", (req, res) => {
     const id = Number(req.params.id);
 
@@ -59,7 +77,12 @@ app.get("/tasks/:id", (req, res) => {
 
     res.status(200).json(task);
 });
-// Stage 3: Create a new task
+
+// ==========================================
+// CREATE A NEW TASK
+// POST /tasks
+// ==========================================
+
 app.post("/tasks", (req, res) => {
     const { title } = req.body;
 
@@ -72,19 +95,87 @@ app.post("/tasks", (req, res) => {
 
     // Create new task
     const newTask = {
-        id: tasks.length > 0 ? Math.max(...tasks.map(task => task.id)) + 1 : 1,
+        id: tasks.length > 0
+            ? Math.max(...tasks.map(task => task.id)) + 1
+            : 1,
         title: title.trim(),
         done: false
     };
 
-    // Add task to list
+    // Add task to array
     tasks.push(newTask);
 
     // Return created task
     res.status(201).json(newTask);
 });
 
-// Start server
+// ==========================================
+// UPDATE A TASK
+// PUT /tasks/:id
+// ==========================================
+
+app.put("/tasks/:id", (req, res) => {
+    const id = Number(req.params.id);
+    const { title, done } = req.body;
+
+    // Find task
+    const task = tasks.find(task => task.id === id);
+
+    // Check if task exists
+    if (!task) {
+        return res.status(404).json({
+            error: `Task ${id} not found`
+        });
+    }
+
+    // Validate title
+    if (!title || typeof title !== "string" || title.trim() === "") {
+        return res.status(400).json({
+            error: "Title is required and cannot be empty"
+        });
+    }
+
+    // Update title
+    task.title = title.trim();
+
+    // Update done only if it is a boolean
+    if (typeof done === "boolean") {
+        task.done = done;
+    }
+
+    // Return updated task
+    res.status(200).json(task);
+});
+
+// ==========================================
+// DELETE A TASK
+// DELETE /tasks/:id
+// ==========================================
+
+app.delete("/tasks/:id", (req, res) => {
+    const id = Number(req.params.id);
+
+    // Find task index
+    const taskIndex = tasks.findIndex(task => task.id === id);
+
+    // Check if task exists
+    if (taskIndex === -1) {
+        return res.status(404).json({
+            error: `Task ${id} not found`
+        });
+    }
+
+    // Delete task
+    tasks.splice(taskIndex, 1);
+
+    // Successful deletion
+    res.status(204).send();
+});
+
+// ==========================================
+// START SERVER
+// ==========================================
+
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
 });
